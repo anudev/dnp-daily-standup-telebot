@@ -43,7 +43,9 @@ function logOutMsg(ctx, text) {
 const users = new Set();
 
 bot.hears(message => !/\/(start|startStandUp|help|about)/.test(message),
-    ctx => users.add(`@${ctx.message.from.username}`));
+    ctx => {
+        users.add(`@${ctx.message.from.username}`)
+    });
 
 bot.command('startStandUp', ctx => {
     logMsg(ctx);
@@ -53,7 +55,10 @@ bot.command('startStandUp', ctx => {
         userForSort.push({sortKey: Math.floor(Math.random() * 10000), user: user})
     }
     userForSort.sort((a, b) => a.sortKey - b.sortKey);
-    ctx.reply(userForSort.map((val, index, array) => `${index} ${val.user}`).join('\n'));
+    const msg = userForSort.map((val, index, array) => `${index} ${val.user}`).join('\n');
+    if (msg) {
+        ctx.reply(msg);
+    }
 });
 
 bot.start(ctx => {
