@@ -12,10 +12,6 @@ const helpMsg = `Command reference:
 
 const aboutMsg = "This bot was created by @AnuDev\nSource code and contact information can be found at https://github.com/anudev/dnp-daily-standup-telebot";
 
-function getRegExp(command) {
-    return new RegExp("/" + command + "[0-9]*\\b");
-}
-
 //get username for group command handling
 bot.telegram.getMe().then((botInfo) => {
     bot.options.username = botInfo.username;
@@ -23,7 +19,7 @@ bot.telegram.getMe().then((botInfo) => {
 });
 
 function userString(ctx) {
-    return JSON.stringify(ctx.from.id == ctx.chat.id ? ctx.from : {
+    return JSON.stringify(ctx.from.id === ctx.chat.id ? ctx.from : {
         from: ctx.from,
         chat: ctx.chat
     });
@@ -40,22 +36,31 @@ function logOutMsg(ctx, text) {
     }, text);
 }
 
-const users = new Set();
+const users = new Map();
+
+function getChatName(ctx) {
+    return ctx.chat.title;
+}
 
 bot.hears(message => !/\/(start|startStandUp|help|about)/.test(message),
     ctx => {
-        users.add(`@${ctx.message.from.username}`)
+        const chatName = getChatName(ctx);
+        if (!users.has(chatName)) {
+            users.set(chatName, new Set());
+        }
+        users.get(chatName).add(`@${ctx.message.from.username}`);
     });
 
 bot.command('startStandUp', ctx => {
     logMsg(ctx);
     logOutMsg(ctx, aboutMsg);
     const userForSort = [];
-    for (let user of users.keys()) {
+    const chatName = getChatName(ctx);
+    for (let user of users.get(chatName).keys()) {
         userForSort.push({sortKey: Math.floor(Math.random() * 10000), user: user})
     }
     userForSort.sort((a, b) => a.sortKey - b.sortKey);
-    const msg = userForSort.map((val, index, array) => `${index} ${val.user}`).join('\n');
+    const msg = userForSort.map((val, index) => `${index + 1} ${val.user}`).join('\n');
     if (msg) {
         ctx.reply(msg);
     }
@@ -68,10 +73,6 @@ bot.start(ctx => {
     var m = "Hello, I'm daily standUp support bot.";
     ctx.reply(m);
     logOutMsg(ctx, m);
-    setTimeout(() => {
-        ctx.reply(0);
-        logOutMsg(ctx, 0)
-    }, 50); //workaround to send this message definitely as second message
 });
 
 bot.help(ctx => {
