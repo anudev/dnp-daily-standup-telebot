@@ -40,7 +40,7 @@ function logOutMsg(ctx, text) {
     }, text);
 }
 
-const users = new Set(['@aaaa', '@bbbb']);
+const users = new Set();
 
 bot.hears(message => !/\/(start|startStandUp|help|about)/.test(message),
     ctx => users.add(`@${ctx.message.from.username}`));
