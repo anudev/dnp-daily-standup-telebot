@@ -2,11 +2,7 @@ const Telegraf = require('telegraf');
 const config = require('./config');
 const dataService = require('./dataService');
 
-const bot = new Telegraf(config.botToken, {
-    telegram: {             // Telegram options
-        webhookReply: false  // Reply via webhook
-    }
-});
+const bot = new Telegraf(config.botToken);
 
 const helpMsg = `Command reference:
 /start - Start bot (mandatory in groups)
